@@ -1,0 +1,105 @@
+<div
+  class="modal fade"
+  id="otpModal"
+  tabindex="-1"
+  aria-labelledby="otpModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-2">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <h2 class="modal-title h5 fw-semibold" id="otpModalLabel">
+            Verify your email
+          </h2>
+          <p class="small-text mb-0">
+            Enter the 6-digit code we sent to your email.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form id="verifyForm">
+        <div class="modal-body pt-4">
+          <div
+            id="modalMessage"
+            class="alert d-none"
+            role="alert"
+            aria-live="polite"
+          ></div>
+          <div class="d-flex justify-content-between gap-2 mb-2" id="otpInputs">
+            <input
+              class="form-control otp-input"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              aria-label="OTP digit 1"
+              required
+            />
+            <input
+              class="form-control otp-input"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              aria-label="OTP digit 2"
+              required
+            />
+            <input
+              class="form-control otp-input"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              aria-label="OTP digit 3"
+              required
+            />
+            <input
+              class="form-control otp-input"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              aria-label="OTP digit 4"
+              required
+            />
+            <input
+              class="form-control otp-input"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              aria-label="OTP digit 5"
+              required
+            />
+            <input
+              class="form-control otp-input"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              aria-label="OTP digit 6"
+              required
+            />
+          </div>
+          <div id="otpError" class="invalid-feedback d-block"></div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button
+            id="verifyButton"
+            type="submit"
+            class="btn btn-primary fw-medium px-4"
+          >
+            Verify account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

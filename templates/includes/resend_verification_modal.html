@@ -1,0 +1,69 @@
+<div
+  class="modal fade"
+  id="resendModal"
+  tabindex="-1"
+  aria-labelledby="resendModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-2">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <h2 class="modal-title h5 fw-semibold" id="resendModalLabel">
+            Send verification code
+          </h2>
+          <p class="small-text mb-0">
+            Enter your email address and we'll send a 6-digit code to verify
+            your account.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form id="resendForm">
+        <div class="modal-body pt-4">
+          <div
+            id="resendModalMessage"
+            class="alert d-none"
+            role="alert"
+            aria-live="polite"
+          ></div>
+          <div class="mb-3">
+            <label for="resendEmail" class="form-label fw-medium"
+              >Email address</label
+            >
+            <input
+              id="resendEmail"
+              name="email"
+              type="email"
+              class="form-control"
+              autocomplete="email"
+              required
+            />
+            <div id="resendEmailError" class="invalid-feedback"></div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button
+            id="resendSubmitButton"
+            type="submit"
+            class="btn btn-primary fw-medium px-4"
+          >
+            Send code
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Your profile | Auth Module{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-sm navbar-light bg-white profile-nav">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-semibold" href="/">Auth Module</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item">
+                    <span id="userIndicator" class="badge rounded-pill profile-badge py-2 px-3">Loading user...</span>
+                </li>
+                <li class="nav-item">
+                    <button id="logoutButton" class="btn btn-outline-secondary" type="button">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="profile-shell d-flex justify-content-center">
+    <section class="profile-card bg-white p-4 p-sm-5 mt-4">
+        <div class="profile-header mb-4">
+            <h1 class="h4 fw-semibold mb-1">Your profile</h1>
+        </div>
+
+        <div id="message" class="alert d-none" role="alert" aria-live="polite"></div>
+
+        <div id="profileContent" class="d-grid gap-3 d-none">
+            <div class="row gx-3">
+                <div class="col-12 col-md-6">
+                    <label class="form-label mb-1">Email</label>
+                    <div id="userEmail" class="form-control-plaintext">—</div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label mb-1">Username</label>
+                    <div id="userUsername" class="form-control-plaintext">—</div>
+                </div>
+            </div>
+
+            <div class="row gx-3">
+                <div class="col-12 col-md-6">
+                    <label class="form-label mb-1">Account status</label>
+                    <div id="accountStatus" class="badge rounded-pill text-white py-2 px-3">—</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}

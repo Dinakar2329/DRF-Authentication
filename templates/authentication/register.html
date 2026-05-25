@@ -1,0 +1,82 @@
+﻿{% extends 'base.html' %} {% load static %} {% block title %}Create account |
+Auth Module {% endblock %} {% block content %}
+<main class="register-shell d-flex align-items-center justify-content-center">
+  <section class="register-card bg-white p-4 p-sm-5">
+    <div class="mb-4">
+      <div class="d-flex justify-content-between align-items-start gap-3">
+        <div>
+          <h1 class="h3 fw-semibold mb-2">Create your account</h1>
+          <p class="small-text mb-0">
+            Enter your email and password. We'll send a one-time code to
+            verify your account.
+          </p>
+        </div>
+        <button
+          id="openVerifyModalButton"
+          type="button"
+          class="btn btn-sm btn-outline-primary mt-1"
+          title="Already registered? Verify your account"
+        >
+          Verify account
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="message"
+      class="alert d-none"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+    <form id="registerForm" class="d-grid gap-3" novalidate>
+      <div>
+        <label for="email" class="form-label fw-medium">Email address</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          class="form-control"
+          autocomplete="email"
+          required
+        />
+        <div id="emailError" class="invalid-feedback"></div>
+      </div>
+      <div>
+        <label for="password" class="form-label fw-medium">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          class="form-control"
+          autocomplete="new-password"
+          minlength="8"
+          required
+        />
+        <div id="passwordError" class="invalid-feedback"></div>
+        <div class="form-text">Use at least 8 characters.</div>
+      </div>
+      <button
+        id="registerButton"
+        type="submit"
+        class="btn btn-primary fw-medium"
+      >
+        Send verification code
+      </button>
+    </form>
+
+    <p class="small-text mt-4 mb-0">
+      Already have an account? <a href="/login/">Sign in</a>
+    </p>
+    <p class="small-text mb-0">
+      Registered but not verified yet? Click
+      <strong>Verify account</strong> above to get a new code.
+    </p>
+  </section>
+</main>
+
+{% include 'includes/verify_code_modal.html' %}
+{% include 'includes/resend_verification_modal.html' %}
+{% endblock %} {% block extra_scripts %}
+<script src="{% static 'js/register.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,36 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sign in | Auth Module{% endblock %}
+
+{% block content %}
+<main class="login-shell d-flex align-items-center justify-content-center">
+    <section class="login-card bg-white p-4 p-sm-5">
+        <div class="mb-4">
+            <h1 class="h3 fw-semibold mb-2">Sign in to your account</h1>
+            <p class="small-text mb-0">Enter your email and password to access your account.</p>
+        </div>
+
+        <div id="message" class="alert d-none" role="alert" aria-live="polite"></div>
+
+        <form id="loginForm" class="d-grid gap-3" novalidate>
+            <div>
+                <label for="email" class="form-label fw-medium">Email address</label>
+                <input id="email" name="email" type="email" class="form-control" autocomplete="email" required />
+                <div id="emailError" class="invalid-feedback"></div>
+            </div>
+            <div>
+                <label for="password" class="form-label fw-medium">Password</label>
+                <input id="password" name="password" type="password" class="form-control" autocomplete="current-password" minlength="8" required />
+                <div id="passwordError" class="invalid-feedback"></div>
+            </div>
+            <button id="loginButton" type="submit" class="btn btn-primary fw-medium">Sign in</button>
+        </form>
+
+        <p class="small-text mt-4 mb-0">Don’t have an account? <a href="/register/">Create one</a></p>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/login.js' %}"></script>
+{% endblock %}
