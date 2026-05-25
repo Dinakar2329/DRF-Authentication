@@ -30,12 +30,53 @@ function getErrorMessage(data) {
   return "Please correct the highlighted fields.";
 }
 
+async function apiFetch(url, options = {}) {
+  const requestOptions = {
+    credentials: "same-origin",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      ...(options.headers || {}),
+    },
+    ...options,
+  };
+
+  let response = await fetch(url, requestOptions);
+  let didRetry = false;
+
+  if (response.status === 401 && url !== "/api/token/refresh/" && !didRetry) {
+    const refreshResponse = await fetch("/api/token/refresh/", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+    });
+
+    if (refreshResponse.ok) {
+      didRetry = true;
+      response = await fetch(url, requestOptions);
+    }
+  }
+
+  return response;
+}
+
+async function getJson(url) {
+  const response = await apiFetch(url, { method: "GET" });
+  const data = await parseResponse(response);
+  if (!response.ok) {
+    const error = new Error(getErrorMessage(data));
+    error.errors = data;
+    throw error;
+  }
+  return data;
+}
+
 async function postJson(url, payload = {}) {
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-CSRFToken": getCookie("csrftoken"),
     },
     body: JSON.stringify(payload),
   });

@@ -73,6 +73,19 @@ class RegisterVerifySerializer(serializers.Serializer):
         return attrs
 
 
+class RegisterResendSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        email = value.lower()
+        user = User.objects.filter(email=email).first()
+        if user is None:
+            raise serializers.ValidationError('No registration found for this email.')
+        if user.is_active:
+            raise serializers.ValidationError('This account is already verified.')
+        return email
+
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)

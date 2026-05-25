@@ -22,6 +22,10 @@ body {
   min-height: 100vh;
   padding: 32px 16px;
 }
+.profile-shell {
+  min-height: 80vh;
+  padding: 32px 16px;
+}
 
 .register-card,
 .login-card,

@@ -103,7 +103,7 @@ class RegistrationApiTests(TestCase):
         self.assertContains(response, 'Create your account')
         self.assertContains(response, 'Verify your email')
         self.assertContains(response, 'id="modalMessage"')
-        self.assertContains(response, 'showModalMessage(error.message, \'danger\')')
+        self.assertContains(response, 'src="/static/js/register.js"')
         self.assertContains(response, 'class="form-control otp-input"', count=6)
         self.assertNotContains(response, 'AM')
         self.assertIn('csrftoken', response.cookies)
@@ -127,7 +127,9 @@ class RegistrationApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('auth_token', response.cookies)
+        self.assertIn('refresh_token', response.cookies)
         self.assertTrue(response.cookies['auth_token']['httponly'])
+        self.assertTrue(response.cookies['refresh_token']['httponly'])
         self.assertEqual(response.data['user']['email'], 'test@example.com')
 
     def test_login_rejects_invalid_credentials(self):
@@ -197,10 +199,65 @@ class RegistrationApiTests(TestCase):
 
         self.assertEqual(login_response.status_code, 200)
         self.assertIn(settings.JWT_AUTH_COOKIE_NAME, login_response.cookies)
+        self.assertIn(settings.JWT_AUTH_REFRESH_COOKIE_NAME, login_response.cookies)
 
         logout_response = self.client.post('/api/logout/')
         self.assertEqual(logout_response.status_code, 200)
         self.assertEqual(logout_response.cookies.get(settings.JWT_AUTH_COOKIE_NAME).value, '')
+        self.assertEqual(logout_response.cookies.get(settings.JWT_AUTH_REFRESH_COOKIE_NAME).value, '')
 
         me_response = self.client.get('/api/me/')
         self.assertEqual(me_response.status_code, 401)
+
+    def test_refresh_endpoint_sets_auth_cookie(self):
+        user = User.objects.create_user(
+            username='test@example.com',
+            email='test@example.com',
+            password='StrongPass123',
+        )
+        login_response = self.client.post(
+            '/api/login/',
+            {'email': user.email, 'password': 'StrongPass123'},
+            format='json',
+        )
+        self.client.cookies = login_response.cookies
+
+        refresh_response = self.client.post('/api/token/refresh/', format='json')
+
+        self.assertEqual(refresh_response.status_code, 200)
+        self.assertIn(settings.JWT_AUTH_COOKIE_NAME, refresh_response.cookies)
+        self.assertEqual(refresh_response.data['message'], 'Access token refreshed.')
+    def test_resend_verification_for_inactive_user(self):
+        user = User.objects.create_user(
+            username='test@example.com',
+            email='test@example.com',
+            password='StrongPass123',
+            is_active=False,
+        )
+
+        response = self.client.post(
+            '/api/register/resend/',
+            {'email': user.email},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['message'], 'Verification code resent. Please check your email.')
+        self.assertTrue(RegistrationOTP.objects.filter(email=user.email).exists())
+
+    def test_resend_verification_rejects_active_account(self):
+        user = User.objects.create_user(
+            username='test@example.com',
+            email='test@example.com',
+            password='StrongPass123',
+            is_active=True,
+        )
+
+        response = self.client.post(
+            '/api/register/resend/',
+            {'email': user.email},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('email', response.data)

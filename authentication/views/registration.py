@@ -11,7 +11,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from authentication.serializers import RegisterSerializer, RegisterVerifySerializer
+from authentication.serializers import (
+    RegisterResendSerializer,
+    RegisterSerializer,
+    RegisterVerifySerializer,
+)
+from authentication.services import create_registration_otp
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -83,3 +88,30 @@ class RegisterVerifyView(APIView):
         otp.save(update_fields=['verified_at'])
 
         return Response({'message': 'Registration completed successfully.'})
+
+
+class RegisterResendView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        request_body=RegisterResendSerializer,
+        responses={200: openapi.Response('Verification code resent')},
+    )
+    def post(self, request):
+        serializer = RegisterResendSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data['email']
+        try:
+            create_registration_otp(email)
+        except SMTPException:
+            return Response(
+                {'detail': 'Could not send verification email. Please try again later.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(
+            {'message': 'Verification code resent. Please check your email.'},
+            status=status.HTTP_200_OK,
+        )

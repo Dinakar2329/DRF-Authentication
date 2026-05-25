@@ -19,11 +19,7 @@ logoutButton.addEventListener("click", async () => {
 
 async function loadProfile() {
   try {
-    const response = await fetch("/api/me/");
-    const data = await parseResponse(response);
-    if (!response.ok) {
-      throw new Error(data.detail || "Unable to load profile.");
-    }
+    const data = await getJson("/api/me/");
 
     document.getElementById("userEmail").textContent = data.email;
     document.getElementById("userUsername").textContent = data.username;
