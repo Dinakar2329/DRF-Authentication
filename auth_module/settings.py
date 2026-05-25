@@ -1,6 +1,9 @@
 
 import os
 from pathlib import Path
+from datetime import timedelta
+
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -115,12 +118,51 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+EMAIL_OTP_ENABLED = env_bool('EMAIL_OTP_ENABLED', False)
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@example.com')
+
+if EMAIL_OTP_ENABLED:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
+    missing_email_settings = [
+        name
+        for name, value in {
+            'EMAIL_HOST': EMAIL_HOST,
+            'EMAIL_HOST_USER': EMAIL_HOST_USER,
+            'EMAIL_HOST_PASSWORD': EMAIL_HOST_PASSWORD,
+            'DEFAULT_FROM_EMAIL': DEFAULT_FROM_EMAIL,
+        }.items()
+        if not value
+    ]
+    if missing_email_settings:
+        missing = ', '.join(missing_email_settings)
+        raise ImproperlyConfigured(f'Missing email settings for OTP delivery: {missing}')
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'authentication.authentication.CookieJWTAuthentication',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+}
+
+JWT_AUTH_COOKIE_NAME = 'auth_token'
+JWT_AUTH_COOKIE_MAX_AGE = 30 * 60
+JWT_AUTH_COOKIE_SECURE = not DEBUG
+JWT_AUTH_COOKIE_SAMESITE = 'Lax'
 
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SECURE = not DEBUG
