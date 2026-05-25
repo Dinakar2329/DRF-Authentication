@@ -1,6 +1,7 @@
 from smtplib import SMTPException
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import TestCase, override_settings
@@ -181,3 +182,25 @@ class RegistrationApiTests(TestCase):
 
     def test_login_endpoint_allows_anonymous_users(self):
         self.assertEqual(LoginView.permission_classes, [AllowAny])
+
+    def test_logout_clears_auth_cookie(self):
+        user = User.objects.create_user(
+            username='test@example.com',
+            email='test@example.com',
+            password='StrongPass123',
+        )
+        login_response = self.client.post(
+            '/api/login/',
+            {'email': user.email, 'password': 'StrongPass123'},
+            format='json',
+        )
+
+        self.assertEqual(login_response.status_code, 200)
+        self.assertIn(settings.JWT_AUTH_COOKIE_NAME, login_response.cookies)
+
+        logout_response = self.client.post('/api/logout/')
+        self.assertEqual(logout_response.status_code, 200)
+        self.assertEqual(logout_response.cookies.get(settings.JWT_AUTH_COOKIE_NAME).value, '')
+
+        me_response = self.client.get('/api/me/')
+        self.assertEqual(me_response.status_code, 401)

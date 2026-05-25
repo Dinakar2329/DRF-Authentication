@@ -24,6 +24,11 @@ class RegisterPageView(TemplateView):
     template_name = 'authentication/register.html'
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class LoginPageView(TemplateView):
+    template_name = 'authentication/login.html'
+
+
 class RegisterView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]

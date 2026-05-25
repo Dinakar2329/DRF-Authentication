@@ -1,5 +1,5 @@
 from django.conf import settings
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
@@ -41,5 +41,22 @@ class LoginView(APIView):
 
 
 class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         return Response(UserDetailsSerializer(request.user).data)
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        responses={200: openapi.Response('Logged out successfully')},
+    )
+    def post(self, request):
+        response = Response({'message': 'Logged out successfully.'})
+        response.delete_cookie(
+            settings.JWT_AUTH_COOKIE_NAME,
+            samesite=settings.JWT_AUTH_COOKIE_SAMESITE,
+        )
+        return response
