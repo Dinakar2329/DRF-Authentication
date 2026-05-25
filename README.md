@@ -1,27 +1,79 @@
 # Auth Module
 
-Small Django REST API project for authentication-related endpoints.
+Django authentication module with cookie-based JWT auth, registration verification, login/logout, and profile pages.
 
-## Local setup
+## Setup
 
-```bash
+1. Create and activate a virtual environment
+
+```powershell
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
+```
+
+2. Install dependencies
+
+```powershell
 pip install -r requirements.txt
+```
+
+3. Apply migrations
+
+```powershell
 python manage.py migrate
+```
+
+4. Run the development server
+
+```powershell
 python manage.py runserver
 ```
 
-Swagger UI is available at `/swagger/` and sets a CSRF cookie on page load.
-Registration page is available at `/register/`.
+## Available pages
 
-## Registration
+- Registration page: `/register/`
+- Login page: `/login/`
+- Profile page: `/profile/`
+- Swagger docs: `/swagger/`
 
-- `POST /api/register/` with `email` and `password` starts registration and sends an OTP.
-- `POST /api/register/verify/` with `email` and `otp` verifies the account.
-- `POST /api/login/` with `email` and `password` sets the HTTP-only `auth_token` cookie.
-- `GET /api/me/` returns the logged-in user and requires the `auth_token` cookie.
+## API endpoints
 
-By default OTP emails use Django's console backend and print in the terminal.
-Set `EMAIL_OTP_ENABLED=true` with `EMAIL_HOST`, `EMAIL_HOST_USER`,
-`EMAIL_HOST_PASSWORD`, and `DEFAULT_FROM_EMAIL` to send real email.
+- `POST /api/register/`
+  - Body: `email`, `password`
+  - Starts registration and sends a verification OTP
+- `POST /api/register/verify/`
+  - Body: `email`, `otp`
+  - Verifies the user account
+- `POST /api/login/`
+  - Body: `email`, `password`
+  - Sets a secure, HTTP-only `auth_token` cookie
+- `POST /api/logout/`
+  - Clears the `auth_token` cookie
+- `GET /api/me/`
+  - Returns the authenticated user
+  - Requires the `auth_token` cookie
+
+## Notes
+
+- CSRF protection is enabled for form submissions and API requests.
+- The Swagger UI sets a CSRF cookie when loaded.
+- The auth cookie is stored as `auth_token` and is HttpOnly.
+- Static assets are served from `static/` and templates extend `templates/base.html`.
+
+## Email / OTP behavior
+
+By default the project uses Django's console email backend and prints OTP messages to the terminal.
+
+To send real email, configure environment variables and update settings accordingly:
+
+- `EMAIL_OTP_ENABLED=true`
+- `EMAIL_HOST`
+- `EMAIL_HOST_USER`
+- `EMAIL_HOST_PASSWORD`
+- `DEFAULT_FROM_EMAIL`
+
+## Development tips
+
+- Use `python manage.py runserver` to start the app locally.
+- Use the browser to visit `/register/` and `/login/` for the UI flows.
+- Verify authenticated access by visiting `/profile/` after login.
