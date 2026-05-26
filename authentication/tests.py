@@ -45,6 +45,29 @@ class RegistrationApiTests(TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertEqual(User.objects.filter(email='test@example.com').count(), 0)
 
+    def test_register_rejects_existing_inactive_user_email(self):
+        User.objects.create_user(
+            username='test@example.com',
+            email='test@example.com',
+            password='StrongPass123',
+            is_active=False,
+        )
+
+        response = self.client.post(
+            '/api/register/',
+            {'email': 'test@example.com', 'password': 'StrongPass123'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('email', response.data)
+
+    def test_root_url_redirects_to_login(self):
+        response = self.client.get('/')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/login/')
+
     def test_verify_registration_activates_user(self):
         self.client.post(
             '/api/register/',
