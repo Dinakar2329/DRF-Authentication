@@ -8,6 +8,7 @@ const otpInputs = Array.from(document.querySelectorAll(".otp-input"));
 const otpModal = new bootstrap.Modal(document.getElementById("otpModal"));
 const fieldErrors = {
   email: document.getElementById("emailError"),
+  username: document.getElementById("usernameError"),
   password: document.getElementById("passwordError"),
   otp: document.getElementById("otpError"),
 };
@@ -63,6 +64,34 @@ function showFieldErrors(errors) {
   });
 }
 
+function validateClientSideRegistrationInputs() {
+  const emailInput = document.getElementById("email");
+  const usernameInput = document.getElementById("username");
+  const email = emailInput.value.trim();
+  const username = usernameInput.value.trim();
+
+  clearErrors();
+
+  let isValid = true;
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    emailInput.classList.add("is-invalid");
+    fieldErrors.email.textContent = "Enter a valid email address.";
+    isValid = false;
+  }
+
+  const usernamePattern = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{1,28}[A-Za-z0-9])?$/;
+  if (!usernamePattern.test(username)) {
+    usernameInput.classList.add("is-invalid");
+    fieldErrors.username.textContent =
+      "Username can only contain letters, numbers, dots, underscores, or hyphens, and must start and end with a letter or number.";
+    isValid = false;
+  }
+
+  return isValid;
+}
+
 function getOtpValue() {
   return otpInputs.map((input) => input.value).join("");
 }
@@ -115,13 +144,24 @@ otpInputs.forEach((input, index) => {
 registerForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   clearErrors();
+
+  if (!validateClientSideRegistrationInputs()) {
+    showMessage(messageBox, "Please correct the highlighted fields.", "danger");
+    return;
+  }
+
   registerButton.disabled = true;
   registerButton.textContent = "Sending…";
 
   try {
     const email = document.getElementById("email").value.trim();
+    const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
-    const data = await postJson("/api/register/", { email, password });
+    const data = await postJson("/api/register/", {
+      email,
+      username,
+      password,
+    });
 
     pendingVerifyEmail = email;
     showMessage(messageBox, data.message, "success");

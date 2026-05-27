@@ -23,13 +23,14 @@ class RegistrationApiTests(TestCase):
     def test_register_creates_inactive_user_and_sends_otp(self):
         response = self.client.post(
             '/api/register/',
-            {'email': 'test@example.com', 'password': 'StrongPass123'},
+            {'email': 'test@example.com', 'username': 'testuser', 'password': 'StrongPass123'},
             format='json',
         )
 
         self.assertEqual(response.status_code, 201)
         user = User.objects.get(email='test@example.com')
         self.assertFalse(user.is_active)
+        self.assertEqual(user.username, 'testuser')
         self.assertEqual(RegistrationOTP.objects.filter(email='test@example.com').count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
@@ -38,12 +39,43 @@ class RegistrationApiTests(TestCase):
             mocked_otp.side_effect = SMTPException()
             response = self.client.post(
                 '/api/register/',
-                {'email': 'test@example.com', 'password': 'StrongPass123'},
+                {'email': 'test@example.com', 'username': 'testuser', 'password': 'StrongPass123'},
                 format='json',
             )
 
         self.assertEqual(response.status_code, 503)
         self.assertEqual(User.objects.filter(email='test@example.com').count(), 0)
+
+    def test_register_stores_custom_username(self):
+        response = self.client.post(
+            '/api/register/',
+            {'email': 'test@example.com', 'username': 'test_user', 'password': 'StrongPass123'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 201)
+        user = User.objects.get(email='test@example.com')
+        self.assertEqual(user.username, 'test_user')
+
+    def test_register_rejects_invalid_username(self):
+        response = self.client.post(
+            '/api/register/',
+            {'email': 'invalid@example.com', 'username': '<script>', 'password': 'StrongPass123'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('username', response.data)
+
+    def test_register_rejects_invalid_email(self):
+        response = self.client.post(
+            '/api/register/',
+            {'email': 'invalid-email', 'username': 'testuser', 'password': 'StrongPass123'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('email', response.data)
 
     def test_register_rejects_existing_inactive_user_email(self):
         User.objects.create_user(
@@ -55,7 +87,7 @@ class RegistrationApiTests(TestCase):
 
         response = self.client.post(
             '/api/register/',
-            {'email': 'test@example.com', 'password': 'StrongPass123'},
+            {'email': 'test@example.com', 'username': 'testuser', 'password': 'StrongPass123'},
             format='json',
         )
 
@@ -71,7 +103,7 @@ class RegistrationApiTests(TestCase):
     def test_verify_registration_activates_user(self):
         self.client.post(
             '/api/register/',
-            {'email': 'test@example.com', 'password': 'StrongPass123'},
+            {'email': 'test@example.com', 'username': 'testuser', 'password': 'StrongPass123'},
             format='json',
         )
         otp = RegistrationOTP.objects.get(email='test@example.com')
@@ -90,7 +122,7 @@ class RegistrationApiTests(TestCase):
     def test_verify_rejects_bad_otp(self):
         self.client.post(
             '/api/register/',
-            {'email': 'test@example.com', 'password': 'StrongPass123'},
+            {'email': 'test@example.com', 'username': 'testuser', 'password': 'StrongPass123'},
             format='json',
         )
 
