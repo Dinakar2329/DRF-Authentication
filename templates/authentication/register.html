@@ -1,5 +1,7 @@
-﻿{% extends 'base.html' %} {% load static %} {% block title %}Create account |
-Auth Module {% endblock %} {% block content %}
+﻿{% extends 'base.html' %} 
+{% load static %} 
+{% block title %} Create account | Auth Module {% endblock %} 
+{% block content %}
 <main class="register-shell d-flex align-items-center justify-content-center">
   <section class="register-card bg-white p-4 p-sm-5">
     <div class="mb-4">
@@ -7,8 +9,8 @@ Auth Module {% endblock %} {% block content %}
         <div>
           <h1 class="h3 fw-semibold mb-2">Create your account</h1>
           <p class="small-text mb-0">
-            Enter your email and password. We'll send a one-time code to
-            verify your account.
+            Enter your email and password. We'll send a one-time code to verify
+            your account.
           </p>
         </div>
         <button
@@ -38,9 +40,26 @@ Auth Module {% endblock %} {% block content %}
           type="email"
           class="form-control"
           autocomplete="email"
+          maxlength="254"
+          pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
           required
         />
         <div id="emailError" class="invalid-feedback"></div>
+      </div>
+      <div>
+        <label for="username" class="form-label fw-medium">Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          class="form-control"
+          autocomplete="username"
+          minlength="3"
+          maxlength="30"
+          pattern="[A-Za-z0-9](?:[A-Za-z0-9._-]{1,28}[A-Za-z0-9])?"
+          required
+        />
+        <div id="usernameError" class="invalid-feedback"></div>
       </div>
       <div>
         <label for="password" class="form-label fw-medium">Password</label>
@@ -76,7 +95,7 @@ Auth Module {% endblock %} {% block content %}
 </main>
 
 {% include 'includes/verify_code_modal.html' %}
-{% include 'includes/resend_verification_modal.html' %}
-{% endblock %} {% block extra_scripts %}
+ {% include 'includes/resend_verification_modal.html' %} {% endblock %} 
+ {% block extra_scripts %}
 <script src="{% static 'js/register.js' %}"></script>
 {% endblock %}
